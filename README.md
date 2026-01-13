@@ -69,5 +69,8 @@ gmail-to-sheets/
 ### 1. Clone the repository
 ```bash
 git clone <repository_url>
-cd gmail-to-sheets
 python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
+
