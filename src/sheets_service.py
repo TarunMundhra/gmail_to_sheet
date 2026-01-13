@@ -5,12 +5,18 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-
 TOKEN_PATH = "sheets_token.json"
 CREDENTIALS_PATH = "credentials/credentials.json"
 
+_sheets_service = None
+
 
 def get_sheets_service():
+    global _sheets_service
+
+    if _sheets_service:
+        return _sheets_service
+
     creds = None
 
     if os.path.exists(TOKEN_PATH):
@@ -28,23 +34,16 @@ def get_sheets_service():
         with open(TOKEN_PATH, "w") as token:
             token.write(creds.to_json())
 
-    service = build("sheets", "v4", credentials=creds)
-    return service
+    _sheets_service = build("sheets", "v4", credentials=creds)
+    return _sheets_service
 
 
-def append_row(spreadsheet_id, sheet_name, row_values):
-    """
-    Append a single row to Google Sheet
-    """
-    service = get_sheets_service()
-
-    body = {
-        "values": [row_values]
-    }
+def append_row(service, spreadsheet_id, sheet_name, row_values):
+    body = {"values": [row_values]}
 
     service.spreadsheets().values().append(
         spreadsheetId=spreadsheet_id,
-        range=sheet_name,
+        range=f"{sheet_name}!A:D",
         valueInputOption="RAW",
         insertDataOption="INSERT_ROWS",
         body=body
